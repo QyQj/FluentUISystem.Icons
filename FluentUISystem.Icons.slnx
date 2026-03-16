@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="FluentUISystem.Icons.Generator/FluentUISystem.Icons.Generator.csproj" />
+  <Project Path="FluentUISystem.Icons.Shared/FluentUISystem.Icons.Shared.csproj" />
+  <Project Path="FluentUISystem.Icons.WinUI3/FluentUISystem.Icons.WinUI3.csproj" />
+</Solution>
