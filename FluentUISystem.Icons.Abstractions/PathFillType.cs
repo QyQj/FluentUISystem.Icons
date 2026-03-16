@@ -1,4 +1,4 @@
-﻿namespace FluentUISystem.Icons.Shared
+﻿namespace FluentUISystem.Icons.Abstractions
 {
     public enum PathFillType
     {

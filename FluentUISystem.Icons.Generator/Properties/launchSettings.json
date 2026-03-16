@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FluentUISystem.Icons.Generator": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\Workspace\\Self\\FluentUISystenIcon\\assets"
+    }
+  }
+}

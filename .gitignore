@@ -361,3 +361,29 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.A.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.B.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.C.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.D.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.E.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.F.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.G.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.H.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.I.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.J.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.K.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.L.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.M.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.N.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.O.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.P.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.Q.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.R.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.S.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.T.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.U.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.V.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.W.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.X.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.xaml
+/FluentUISystem.Icons.WinUI3/Generated/FluentSystemIconData.Z.xaml

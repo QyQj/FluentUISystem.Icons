@@ -1,4 +1,4 @@
-﻿namespace FluentUISystem.Icons.Shared
+namespace FluentUISystem.Icons.Abstractions
 {
     public class GradientStop
     {
@@ -6,6 +6,6 @@
 
         public double Opacity { get; set; }
 
-        public int Offset { get; set; }
+        public double Offset { get; set; }
     }
 }

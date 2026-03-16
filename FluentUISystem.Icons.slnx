@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="FluentUISystem.Icons.Abstractions/FluentUISystem.Icons.Abstractions.csproj" Id="b93e21f9-26ed-41bc-9c28-862bbb38af2b" />
   <Project Path="FluentUISystem.Icons.Generator/FluentUISystem.Icons.Generator.csproj" />
   <Project Path="FluentUISystem.Icons.Shared/FluentUISystem.Icons.Shared.csproj" />
   <Project Path="FluentUISystem.Icons.WinUI3/FluentUISystem.Icons.WinUI3.csproj" />

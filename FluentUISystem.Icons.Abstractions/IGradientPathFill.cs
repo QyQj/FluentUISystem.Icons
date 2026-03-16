@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FluentUISystem.Icons.Shared
+namespace FluentUISystem.Icons.Abstractions
 {
     public interface IGradientPathFill : IPathFill
     {

@@ -1,15 +1,20 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 
-namespace FluentUISystem.Icons.Shared
+namespace FluentUISystem.Icons.Abstractions
 {
     public class LinearGradientPathFill : IGradientPathFill
     {
-        public string Id { get; }
+        public LinearGradientPathFill(string id)
+        {
+            FillId = id;
+            Transforms = new List<string>();
+            Stops = new List<GradientStop>();
+        }
+
+        public string FillId { get; }
 
         public PathFillType Type => PathFillType.LinearGradient;
-
-        public double Opacity { get; set; }
 
         public List<string> Transforms { get; set; }
 
@@ -18,6 +23,7 @@ namespace FluentUISystem.Icons.Shared
         public List<GradientStop> Stops { get; set; }
 
         public PointF StartPoint { get; set; }
+
         public PointF EndPoint { get; set; }
     }
 }
