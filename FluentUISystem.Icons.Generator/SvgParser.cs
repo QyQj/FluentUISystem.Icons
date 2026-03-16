@@ -1,3 +1,4 @@
+using FluentUISystem.Icons.Abstractions.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace FluentUISystem.Icons.Abstractions
+namespace FluentUISystem.Icons.Generator
 {
     public sealed class SvgParser
     {
@@ -52,9 +53,9 @@ namespace FluentUISystem.Icons.Abstractions
             return result;
         }
 
-        private static IReadOnlyList<IPathFill> ParseFillDefinitions(XElement root)
+        private static IReadOnlyList<PathFillDefinition> ParseFillDefinitions(XElement root)
         {
-            var fills = new List<IPathFill>();
+            var fills = new List<PathFillDefinition>();
 
             foreach (var defs in root.Elements().Where(element => string.Equals(element.Name.LocalName, "defs", StringComparison.OrdinalIgnoreCase)))
             {
@@ -74,7 +75,7 @@ namespace FluentUISystem.Icons.Abstractions
             return fills;
         }
 
-        private static PathDefinition ParsePath(XElement pathElement, IReadOnlyDictionary<string, IPathFill> fillDefinitions)
+        private static PathDefinition ParsePath(XElement pathElement, IReadOnlyDictionary<string, PathFillDefinition> fillDefinitions)
         {
             var fillValue = GetAttribute(pathElement, "fill");
 
@@ -86,7 +87,7 @@ namespace FluentUISystem.Icons.Abstractions
             };
         }
 
-        private static IPathFill ResolveFill(string fillValue, IReadOnlyDictionary<string, IPathFill> fillDefinitions)
+        private static PathFillDefinition ResolveFill(string fillValue, IReadOnlyDictionary<string, PathFillDefinition> fillDefinitions)
         {
             if (string.IsNullOrWhiteSpace(fillValue) ||
                 string.Equals(fillValue, "none", StringComparison.OrdinalIgnoreCase))
@@ -105,7 +106,10 @@ namespace FluentUISystem.Icons.Abstractions
                 throw new InvalidOperationException($"Referenced fill definition '{fillId}' was not found.");
             }
 
-            return new SolidPathFill(fillValue);
+            return new SolidPathFill
+            {
+                Color = fillValue
+            };
         }
 
         private static LinearGradientPathFill ParseLinearGradient(XElement element)
@@ -146,12 +150,12 @@ namespace FluentUISystem.Icons.Abstractions
             return gradient;
         }
 
-        private static List<GradientStop> ParseStops(XElement gradientElement)
+        private static List<PathFillGradientStop> ParseStops(XElement gradientElement)
         {
             return gradientElement
                 .Elements()
                 .Where(element => string.Equals(element.Name.LocalName, "stop", StringComparison.OrdinalIgnoreCase))
-                .Select(element => new GradientStop
+                .Select(element => new PathFillGradientStop
                 {
                     Color = GetAttribute(element, "stop-color"),
                     Opacity = ParseDouble(GetAttribute(element, "stop-opacity")) ?? 1d,
@@ -238,17 +242,17 @@ namespace FluentUISystem.Icons.Abstractions
             return ParseDouble(value) ?? 0d;
         }
 
-        private static double? ParseLength(string value)
+        private static double ParseLength(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                return null;
+                return 0;
             }
 
             var numeric = new string(value.Trim().TakeWhile(character => char.IsDigit(character) || character == '.' || character == '-' || character == '+').ToArray());
             if (string.IsNullOrWhiteSpace(numeric))
             {
-                return null;
+                return 0;
             }
 
             if (double.TryParse(numeric, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
@@ -256,7 +260,7 @@ namespace FluentUISystem.Icons.Abstractions
                 return result;
             }
 
-            return null;
+            return 0;
         }
     }
 }

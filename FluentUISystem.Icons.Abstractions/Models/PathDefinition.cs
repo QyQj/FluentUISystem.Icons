@@ -1,4 +1,4 @@
-namespace FluentUISystem.Icons.WinUI3.Models
+namespace FluentUISystem.Icons.Abstractions.Models
 {
     public class PathDefinition
     {
@@ -6,6 +6,6 @@ namespace FluentUISystem.Icons.WinUI3.Models
 
         public double FillOpacity { get; set; } = 1d;
 
-        public PathFillDefinition? PathFill { get; set; }
+        public PathFillDefinition PathFill { get; set; }
     }
 }

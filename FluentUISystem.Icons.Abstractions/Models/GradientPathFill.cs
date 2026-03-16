@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FluentUISystem.Icons.WinUI3.Models
+namespace FluentUISystem.Icons.Abstractions.Models
 {
     public abstract class GradientPathFill : PathFillDefinition
     {
@@ -8,6 +8,6 @@ namespace FluentUISystem.Icons.WinUI3.Models
 
         public List<string> Transforms { get; set; } = new List<string>();
 
-        public List<GradientStop> Stops { get; set; } = new List<GradientStop>();
+        public List<PathFillGradientStop> Stops { get; set; } = new List<PathFillGradientStop>();
     }
 }

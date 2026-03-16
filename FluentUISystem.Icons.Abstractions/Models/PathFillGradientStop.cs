@@ -1,6 +1,6 @@
-namespace FluentUISystem.Icons.WinUI3.Models
+namespace FluentUISystem.Icons.Abstractions.Models
 {
-    public class GradientStop
+    public class PathFillGradientStop
     {
         public string Color { get; set; } = string.Empty;
 

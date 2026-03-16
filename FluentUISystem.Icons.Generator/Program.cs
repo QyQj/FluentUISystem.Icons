@@ -1,7 +1,7 @@
+using FluentUISystem.Icons.Abstractions.Models;
 using System.Globalization;
 using System.Security;
 using System.Text;
-using FluentUISystem.Icons.Abstractions;
 
 namespace FluentUISystem.Icons.Generator
 {
@@ -29,6 +29,9 @@ namespace FluentUISystem.Icons.Generator
 
             var sharedDirectory = new DirectoryInfo(Path.GetFullPath(Path.Combine(
                 AppContext.BaseDirectory,
+#if X64
+                "..",
+#endif
                 "..",
                 "..",
                 "..",
@@ -37,6 +40,9 @@ namespace FluentUISystem.Icons.Generator
 
             var winUiGeneratedDirectory = new DirectoryInfo(Path.GetFullPath(Path.Combine(
                 AppContext.BaseDirectory,
+#if X64
+                "..",
+#endif
                 "..",
                 "..",
                 "..",
@@ -216,7 +222,8 @@ namespace FluentUISystem.Icons.Generator
             builder.AppendLine("<ResourceDictionary");
             builder.AppendLine("    xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"");
             builder.AppendLine("    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
-            builder.AppendLine("    xmlns:icons=\"using:FluentUISystem.Icons.WinUI3.Models\">");
+            builder.AppendLine("    xmlns:abs=\"using:FluentUISystem.Icons.Abstractions.Models\"");
+            builder.AppendLine("    xmlns:local=\"using:FluentUISystem.Icons.WinUI3\">");
 
             foreach (var icon in iconGroup.OrderBy(item => item.Id, StringComparer.Ordinal))
             {
@@ -230,29 +237,23 @@ namespace FluentUISystem.Icons.Generator
         private static void AppendSvgDefinition(StringBuilder builder, SvgDefinition definition, int indentLevel)
         {
             AppendIndent(builder, indentLevel);
-            builder.Append("<icons:SvgDefinition x:Key=\"");
+            builder.Append("<abs:SvgDefinition x:Key=\"");
             builder.Append(ToXmlAttribute(definition.Id));
             builder.Append("\" Id=\"");
             builder.Append(ToXmlAttribute(definition.Id));
             builder.Append('"');
 
-            if (definition.Width.HasValue)
-            {
-                builder.Append(" Width=\"");
-                builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Width.Value)));
-                builder.Append('"');
-            }
+            builder.Append(" Width=\"");
+            builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Width)));
+            builder.Append('"');
 
-            if (definition.Height.HasValue)
-            {
-                builder.Append(" Height=\"");
-                builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Height.Value)));
-                builder.Append('"');
-            }
+            builder.Append(" Height=\"");
+            builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Height)));
+            builder.Append('"');
 
             builder.AppendLine(">");
             AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("<icons:SvgDefinition.Paths>");
+            builder.AppendLine("<abs:SvgDefinition.Paths>");
 
             foreach (var path in definition.Paths)
             {
@@ -260,15 +261,15 @@ namespace FluentUISystem.Icons.Generator
             }
 
             AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("</icons:SvgDefinition.Paths>");
+            builder.AppendLine("</abs:SvgDefinition.Paths>");
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("</icons:SvgDefinition>");
+            builder.AppendLine("</abs:SvgDefinition>");
         }
 
         private static void AppendPathDefinition(StringBuilder builder, PathDefinition path, int indentLevel)
         {
             AppendIndent(builder, indentLevel);
-            builder.Append("<icons:PathDefinition Data=\"");
+            builder.Append("<abs:PathDefinition Data=\"");
             builder.Append(ToXmlAttribute(path.Data));
             builder.Append("\" FillOpacity=\"");
             builder.Append(ToXmlAttribute(ToDoubleLiteral(path.FillOpacity)));
@@ -282,21 +283,21 @@ namespace FluentUISystem.Icons.Generator
 
             builder.AppendLine(">");
             AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("<icons:PathDefinition.PathFill>");
+            builder.AppendLine("<abs:PathDefinition.PathFill>");
             AppendPathFill(builder, path.PathFill, indentLevel + 2);
             AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("</icons:PathDefinition.PathFill>");
+            builder.AppendLine("</abs:PathDefinition.PathFill>");
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("</icons:PathDefinition>");
+            builder.AppendLine("</abs:PathDefinition>");
         }
 
-        private static void AppendPathFill(StringBuilder builder, IPathFill pathFill, int indentLevel)
+        private static void AppendPathFill(StringBuilder builder, PathFillDefinition pathFill, int indentLevel)
         {
             switch (pathFill)
             {
                 case SolidPathFill solidFill:
                     AppendIndent(builder, indentLevel);
-                    builder.Append("<icons:SolidPathFill FillId=\"");
+                    builder.Append("<abs:SolidPathFill FillId=\"");
                     builder.Append(ToXmlAttribute(solidFill.FillId));
                     builder.Append("\" Color=\"");
                     builder.Append(ToXmlAttribute(solidFill.Color));
@@ -305,7 +306,7 @@ namespace FluentUISystem.Icons.Generator
 
                 case LinearGradientPathFill linearGradient:
                     AppendIndent(builder, indentLevel);
-                    builder.Append("<icons:LinearGradientPathFill FillId=\"");
+                    builder.Append("<abs:LinearGradientPathFill FillId=\"");
                     builder.Append(ToXmlAttribute(linearGradient.FillId));
                     builder.Append("\" SpreadMethod=\"");
                     builder.Append(ToXmlAttribute(linearGradient.SpreadMethod));
@@ -316,12 +317,12 @@ namespace FluentUISystem.Icons.Generator
                     builder.AppendLine("\">");
                     AppendGradientChildren(builder, linearGradient.Transforms, linearGradient.Stops, indentLevel + 1);
                     AppendIndent(builder, indentLevel);
-                    builder.AppendLine("</icons:LinearGradientPathFill>");
+                    builder.AppendLine("</abs:LinearGradientPathFill>");
                     return;
 
                 case RadialGradientPathFill radialGradient:
                     AppendIndent(builder, indentLevel);
-                    builder.Append("<icons:RadialGradientPathFill FillId=\"");
+                    builder.Append("<abs:RadialGradientPathFill FillId=\"");
                     builder.Append(ToXmlAttribute(radialGradient.FillId));
                     builder.Append("\" SpreadMethod=\"");
                     builder.Append(ToXmlAttribute(radialGradient.SpreadMethod));
@@ -330,11 +331,11 @@ namespace FluentUISystem.Icons.Generator
                     builder.Append("\" FocalPoint=\"");
                     builder.Append(ToXmlAttribute(ToPointLiteral(radialGradient.FocalPoint.X, radialGradient.FocalPoint.Y)));
                     builder.Append("\" Radius=\"");
-                    builder.Append(ToXmlAttribute(ToFloatLiteral(radialGradient.Radius)));
+                    builder.Append(ToXmlAttribute(ToDoubleLiteral(radialGradient.Radius)));
                     builder.AppendLine("\">");
                     AppendGradientChildren(builder, radialGradient.Transforms, radialGradient.Stops, indentLevel + 1);
                     AppendIndent(builder, indentLevel);
-                    builder.AppendLine("</icons:RadialGradientPathFill>");
+                    builder.AppendLine("</abs:RadialGradientPathFill>");
                     return;
 
                 default:
@@ -342,10 +343,10 @@ namespace FluentUISystem.Icons.Generator
             }
         }
 
-        private static void AppendGradientChildren(StringBuilder builder, IEnumerable<string> transforms, IEnumerable<GradientStop> stops, int indentLevel)
+        private static void AppendGradientChildren(StringBuilder builder, IEnumerable<string> transforms, IEnumerable<PathFillGradientStop> stops, int indentLevel)
         {
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("<icons:GradientPathFill.Transforms>");
+            builder.AppendLine("<abs:GradientPathFill.Transforms>");
             foreach (var transform in transforms)
             {
                 AppendIndent(builder, indentLevel + 1);
@@ -354,14 +355,14 @@ namespace FluentUISystem.Icons.Generator
                 builder.AppendLine("</x:String>");
             }
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("</icons:GradientPathFill.Transforms>");
+            builder.AppendLine("</abs:GradientPathFill.Transforms>");
 
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("<icons:GradientPathFill.Stops>");
+            builder.AppendLine("<abs:GradientPathFill.Stops>");
             foreach (var stop in stops)
             {
                 AppendIndent(builder, indentLevel + 1);
-                builder.Append("<icons:GradientStop Color=\"");
+                builder.Append("<abs:PathFillGradientStop Color=\"");
                 builder.Append(ToXmlAttribute(stop.Color));
                 builder.Append("\" Opacity=\"");
                 builder.Append(ToXmlAttribute(ToDoubleLiteral(stop.Opacity)));
@@ -370,7 +371,7 @@ namespace FluentUISystem.Icons.Generator
                 builder.AppendLine("\" />");
             }
             AppendIndent(builder, indentLevel);
-            builder.AppendLine("</icons:GradientPathFill.Stops>");
+            builder.AppendLine("</abs:GradientPathFill.Stops>");
         }
 
         private static string GetGroupKey(string symbolId)
@@ -406,7 +407,7 @@ namespace FluentUISystem.Icons.Generator
 
         private static string ToPointLiteral(float x, float y)
         {
-            return $"{ToFloatLiteral(x)},{ToFloatLiteral(y)}";
+            return $"{{local:PointFMarkupExt X = {ToFloatLiteral(x)},Y = {ToFloatLiteral(y)}}}";
         }
     }
 }

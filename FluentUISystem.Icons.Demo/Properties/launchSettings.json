@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FluentUISystem.Icons.Demo (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "FluentUISystem.Icons.Demo (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
