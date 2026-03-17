@@ -15,6 +15,12 @@
     </Window.SystemBackdrop>
 
     <Grid Background="White">
-        <winUi3:FluentUISystemIcon Symbol="Image20Color" />
+        <StackPanel
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            BorderBrush="Red"
+            BorderThickness="4">
+            <winUi3:FluentUISystemIcon Symbol="AccessibilityCheckmark48Regular" />
+        </StackPanel>
     </Grid>
 </Window>

@@ -1,7 +1,7 @@
-using FluentUISystem.Icons.Abstractions.Models;
 using System.Globalization;
 using System.Security;
 using System.Text;
+using FluentUISystem.Icons.Abstractions.Models;
 
 namespace FluentUISystem.Icons.Generator
 {
@@ -10,6 +10,7 @@ namespace FluentUISystem.Icons.Generator
         private const string SymbolFileName = "FluentSystemIconSymbol.g.cs";
         private const string XamlRootFileName = "FluentSystemIconData.xaml";
         private const string XamlGroupFilePrefix = "FluentSystemIconData";
+        private const string ColorSvgDirectoryName = "ColorSvg";
         private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
 
         private static void Main(string[] args)
@@ -25,7 +26,7 @@ namespace FluentUISystem.Icons.Generator
                 throw new DirectoryNotFoundException($"Assets path '{assetsDirectory.FullName}' does not exist.");
             }
 
-            var iconDefinitions = CollectIconDefinitions(assetsDirectory);
+            var iconAssets = CollectIconAssets(assetsDirectory);
 
             var sharedDirectory = new DirectoryInfo(Path.GetFullPath(Path.Combine(
                 AppContext.BaseDirectory,
@@ -49,39 +50,38 @@ namespace FluentUISystem.Icons.Generator
                 "..",
                 "FluentUISystem.Icons.WinUI3",
                 "Generated")));
+            var colorSvgDirectory = new DirectoryInfo(Path.Combine(winUiGeneratedDirectory.FullName, ColorSvgDirectoryName));
 
             Directory.CreateDirectory(sharedDirectory.FullName);
             Directory.CreateDirectory(winUiGeneratedDirectory.FullName);
+            Directory.CreateDirectory(colorSvgDirectory.FullName);
 
-            CleanGeneratedOutputs(sharedDirectory, winUiGeneratedDirectory);
+            CleanGeneratedOutputs(sharedDirectory, winUiGeneratedDirectory, colorSvgDirectory);
 
             File.WriteAllText(
                 Path.Combine(sharedDirectory.FullName, SymbolFileName),
-                BuildSymbolCode(iconDefinitions),
+                BuildSymbolCode(iconAssets.Select(asset => asset.SymbolName).ToList()),
                 new UTF8Encoding(false));
 
-            var iconGroups = iconDefinitions
-                .GroupBy(definition => GetGroupKey(definition.Id))
-                .OrderBy(group => group.Key, StringComparer.Ordinal)
+            var xamlDefinitions = iconAssets
+                .Where(asset => !asset.IsColor && asset.Definition != null)
+                .Select(asset => asset.Definition!)
                 .ToList();
 
-            foreach (var iconGroup in iconGroups)
-            {
-                File.WriteAllText(
-                    Path.Combine(winUiGeneratedDirectory.FullName, $"{XamlGroupFilePrefix}.{iconGroup.Key}.xaml"),
-                    BuildGroupDictionaryXaml(iconGroup),
-                    new UTF8Encoding(false));
-            }
-
             File.WriteAllText(
-                Path.Combine(winUiGeneratedDirectory.FullName, XamlRootFileName),
-                BuildMergedDictionaryXaml(iconGroups.Select(group => group.Key).ToList()),
+                Path.Combine(winUiGeneratedDirectory.FullName, $"{XamlGroupFilePrefix}.xaml"),
+                BuildDictionaryXaml(xamlDefinitions),
                 new UTF8Encoding(false));
+
+            foreach (var colorAsset in iconAssets.Where(asset => asset.IsColor))
+            {
+                File.Copy(colorAsset.SvgFile.FullName, Path.Combine(colorSvgDirectory.FullName, colorAsset.SymbolName + ".svg"), true);
+            }
         }
 
-        private static List<SvgDefinition> CollectIconDefinitions(DirectoryInfo assetsDirectory)
+        private static List<IconAsset> CollectIconAssets(DirectoryInfo assetsDirectory)
         {
-            var iconDefinitions = new List<SvgDefinition>();
+            var iconAssets = new List<IconAsset>();
             var symbols = assetsDirectory.GetDirectories().OrderBy(directory => directory.Name, StringComparer.Ordinal);
 
             foreach (var symbol in symbols)
@@ -112,7 +112,7 @@ namespace FluentUISystem.Icons.Generator
                             .GetFiles("*.svg", SearchOption.AllDirectories)
                             .OrderBy(file => file.FullName, StringComparer.Ordinal);
 
-                        iconDefinitions.AddRange(svgFiles.Select(file => ParseDefinition(baseSymbolName, file, lang)));
+                        iconAssets.AddRange(svgFiles.Select(file => CreateIconAsset(baseSymbolName, file, lang)));
                     }
                 }
                 else
@@ -121,16 +121,16 @@ namespace FluentUISystem.Icons.Generator
                         .GetFiles("*.svg", SearchOption.AllDirectories)
                         .OrderBy(file => file.FullName, StringComparer.Ordinal);
 
-                    iconDefinitions.AddRange(svgFiles.Select(file => ParseDefinition(baseSymbolName, file)));
+                    iconAssets.AddRange(svgFiles.Select(file => CreateIconAsset(baseSymbolName, file)));
                 }
             }
 
-            return iconDefinitions
-                .OrderBy(definition => definition.Id, StringComparer.Ordinal)
+            return iconAssets
+                .OrderBy(asset => asset.SymbolName, StringComparer.Ordinal)
                 .ToList();
         }
 
-        private static void CleanGeneratedOutputs(DirectoryInfo sharedDirectory, DirectoryInfo winUiGeneratedDirectory)
+        private static void CleanGeneratedOutputs(DirectoryInfo sharedDirectory, DirectoryInfo winUiGeneratedDirectory, DirectoryInfo colorSvgDirectory)
         {
             foreach (var file in sharedDirectory.GetFiles("FluentSystemIconData.*.g.cs", SearchOption.TopDirectoryOnly))
             {
@@ -141,14 +141,30 @@ namespace FluentUISystem.Icons.Generator
             {
                 file.Delete();
             }
+
+            foreach (var file in colorSvgDirectory.GetFiles("*.svg", SearchOption.TopDirectoryOnly))
+            {
+                file.Delete();
+            }
         }
 
-        private static SvgDefinition ParseDefinition(string baseSymbol, FileInfo svgFile, string lang = "")
+        private static IconAsset CreateIconAsset(string baseSymbol, FileInfo svgFile, string lang = "")
         {
+            var symbolName = GetSymbolName(baseSymbol, svgFile, lang);
+            if (IsColorSvg(svgFile))
+            {
+                return new IconAsset(symbolName, svgFile, null, true);
+            }
+
             var svgContent = File.ReadAllText(svgFile.FullName);
             var svgDefinition = SvgParser.Parse(svgContent);
-            svgDefinition.Id = GetSymbolName(baseSymbol, svgFile, lang);
-            return svgDefinition;
+            svgDefinition.Id = symbolName;
+            return new IconAsset(symbolName, svgFile, svgDefinition, false);
+        }
+
+        private static bool IsColorSvg(FileInfo svgFile)
+        {
+            return Path.GetFileNameWithoutExtension(svgFile.Name).EndsWith("color", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetSymbolName(string baseSymbol, FileInfo svgFile, string lang = "")
@@ -172,7 +188,7 @@ namespace FluentUISystem.Icons.Generator
             return baseSymbol + nameParts[^2] + nameParts[^1] + TextInfo.ToTitleCase(lang);
         }
 
-        private static string BuildSymbolCode(IReadOnlyList<SvgDefinition> iconDefinitions)
+        private static string BuildSymbolCode(IReadOnlyList<string> symbolNames)
         {
             var builder = new StringBuilder();
 
@@ -181,10 +197,10 @@ namespace FluentUISystem.Icons.Generator
             builder.AppendLine("public enum FluentSystemIconSymbol");
             builder.AppendLine("{");
 
-            foreach (var icon in iconDefinitions)
+            foreach (var symbolName in symbolNames)
             {
                 builder.Append("    ");
-                builder.Append(icon.Id);
+                builder.Append(symbolName);
                 builder.AppendLine(",");
             }
 
@@ -192,30 +208,7 @@ namespace FluentUISystem.Icons.Generator
             return builder.ToString();
         }
 
-        private static string BuildMergedDictionaryXaml(IReadOnlyList<string> groupKeys)
-        {
-            var builder = new StringBuilder();
-
-            builder.AppendLine("<ResourceDictionary");
-            builder.AppendLine("    xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"");
-            builder.AppendLine("    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">");
-            builder.AppendLine("    <ResourceDictionary.MergedDictionaries>");
-
-            foreach (var groupKey in groupKeys)
-            {
-                builder.Append("        <ResourceDictionary Source=\"ms-appx:///Generated/");
-                builder.Append(XamlGroupFilePrefix);
-                builder.Append('.');
-                builder.Append(groupKey);
-                builder.AppendLine(".xaml\" />");
-            }
-
-            builder.AppendLine("    </ResourceDictionary.MergedDictionaries>");
-            builder.AppendLine("</ResourceDictionary>");
-            return builder.ToString();
-        }
-
-        private static string BuildGroupDictionaryXaml(IGrouping<string, SvgDefinition> iconGroup)
+        private static string BuildDictionaryXaml(IList<SvgDefinition> svgs)
         {
             var builder = new StringBuilder();
 
@@ -225,7 +218,7 @@ namespace FluentUISystem.Icons.Generator
             builder.AppendLine("    xmlns:abs=\"using:FluentUISystem.Icons.Abstractions.Models\"");
             builder.AppendLine("    xmlns:local=\"using:FluentUISystem.Icons.WinUI3\">");
 
-            foreach (var icon in iconGroup.OrderBy(item => item.Id, StringComparer.Ordinal))
+            foreach (var icon in svgs.OrderBy(item => item.Id, StringComparer.Ordinal))
             {
                 AppendSvgDefinition(builder, icon, 1);
             }
@@ -239,11 +232,8 @@ namespace FluentUISystem.Icons.Generator
             AppendIndent(builder, indentLevel);
             builder.Append("<abs:SvgDefinition x:Key=\"");
             builder.Append(ToXmlAttribute(definition.Id));
-            builder.Append("\" Id=\"");
-            builder.Append(ToXmlAttribute(definition.Id));
-            builder.Append('"');
 
-            builder.Append(" Width=\"");
+            builder.Append("\" Width=\"");
             builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Width)));
             builder.Append('"');
 
@@ -271,107 +261,11 @@ namespace FluentUISystem.Icons.Generator
             AppendIndent(builder, indentLevel);
             builder.Append("<abs:PathDefinition Data=\"");
             builder.Append(ToXmlAttribute(path.Data));
+            builder.Append("\" Fill=\"");
+            builder.Append(ToXmlAttribute(path.Fill));
             builder.Append("\" FillOpacity=\"");
             builder.Append(ToXmlAttribute(ToDoubleLiteral(path.FillOpacity)));
-            builder.Append('"');
-
-            if (path.PathFill == null)
-            {
-                builder.AppendLine(" />");
-                return;
-            }
-
-            builder.AppendLine(">");
-            AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("<abs:PathDefinition.PathFill>");
-            AppendPathFill(builder, path.PathFill, indentLevel + 2);
-            AppendIndent(builder, indentLevel + 1);
-            builder.AppendLine("</abs:PathDefinition.PathFill>");
-            AppendIndent(builder, indentLevel);
-            builder.AppendLine("</abs:PathDefinition>");
-        }
-
-        private static void AppendPathFill(StringBuilder builder, PathFillDefinition pathFill, int indentLevel)
-        {
-            switch (pathFill)
-            {
-                case SolidPathFill solidFill:
-                    AppendIndent(builder, indentLevel);
-                    builder.Append("<abs:SolidPathFill FillId=\"");
-                    builder.Append(ToXmlAttribute(solidFill.FillId));
-                    builder.Append("\" Color=\"");
-                    builder.Append(ToXmlAttribute(solidFill.Color));
-                    builder.AppendLine("\" />");
-                    return;
-
-                case LinearGradientPathFill linearGradient:
-                    AppendIndent(builder, indentLevel);
-                    builder.Append("<abs:LinearGradientPathFill FillId=\"");
-                    builder.Append(ToXmlAttribute(linearGradient.FillId));
-                    builder.Append("\" SpreadMethod=\"");
-                    builder.Append(ToXmlAttribute(linearGradient.SpreadMethod));
-                    builder.Append("\" StartPoint=\"");
-                    builder.Append(ToXmlAttribute(ToPointLiteral(linearGradient.StartPoint.X, linearGradient.StartPoint.Y)));
-                    builder.Append("\" EndPoint=\"");
-                    builder.Append(ToXmlAttribute(ToPointLiteral(linearGradient.EndPoint.X, linearGradient.EndPoint.Y)));
-                    builder.AppendLine("\">");
-                    AppendGradientChildren(builder, linearGradient.Transforms, linearGradient.Stops, indentLevel + 1);
-                    AppendIndent(builder, indentLevel);
-                    builder.AppendLine("</abs:LinearGradientPathFill>");
-                    return;
-
-                case RadialGradientPathFill radialGradient:
-                    AppendIndent(builder, indentLevel);
-                    builder.Append("<abs:RadialGradientPathFill FillId=\"");
-                    builder.Append(ToXmlAttribute(radialGradient.FillId));
-                    builder.Append("\" SpreadMethod=\"");
-                    builder.Append(ToXmlAttribute(radialGradient.SpreadMethod));
-                    builder.Append("\" Center=\"");
-                    builder.Append(ToXmlAttribute(ToPointLiteral(radialGradient.Center.X, radialGradient.Center.Y)));
-                    builder.Append("\" FocalPoint=\"");
-                    builder.Append(ToXmlAttribute(ToPointLiteral(radialGradient.FocalPoint.X, radialGradient.FocalPoint.Y)));
-                    builder.Append("\" Radius=\"");
-                    builder.Append(ToXmlAttribute(ToDoubleLiteral(radialGradient.Radius)));
-                    builder.AppendLine("\">");
-                    AppendGradientChildren(builder, radialGradient.Transforms, radialGradient.Stops, indentLevel + 1);
-                    AppendIndent(builder, indentLevel);
-                    builder.AppendLine("</abs:RadialGradientPathFill>");
-                    return;
-
-                default:
-                    throw new NotSupportedException($"Unsupported path fill type: {pathFill.GetType().FullName}");
-            }
-        }
-
-        private static void AppendGradientChildren(StringBuilder builder, IEnumerable<string> transforms, IEnumerable<PathFillGradientStop> stops, int indentLevel)
-        {
-            AppendIndent(builder, indentLevel);
-            builder.AppendLine("<abs:GradientPathFill.Transforms>");
-            foreach (var transform in transforms)
-            {
-                AppendIndent(builder, indentLevel + 1);
-                builder.Append("<x:String>");
-                builder.Append(ToXmlText(transform));
-                builder.AppendLine("</x:String>");
-            }
-            AppendIndent(builder, indentLevel);
-            builder.AppendLine("</abs:GradientPathFill.Transforms>");
-
-            AppendIndent(builder, indentLevel);
-            builder.AppendLine("<abs:GradientPathFill.Stops>");
-            foreach (var stop in stops)
-            {
-                AppendIndent(builder, indentLevel + 1);
-                builder.Append("<abs:PathFillGradientStop Color=\"");
-                builder.Append(ToXmlAttribute(stop.Color));
-                builder.Append("\" Opacity=\"");
-                builder.Append(ToXmlAttribute(ToDoubleLiteral(stop.Opacity)));
-                builder.Append("\" Offset=\"");
-                builder.Append(ToXmlAttribute(ToDoubleLiteral(stop.Offset)));
-                builder.AppendLine("\" />");
-            }
-            AppendIndent(builder, indentLevel);
-            builder.AppendLine("</abs:GradientPathFill.Stops>");
+            builder.AppendLine("\"/>");
         }
 
         private static string GetGroupKey(string symbolId)
@@ -400,14 +294,23 @@ namespace FluentUISystem.Icons.Generator
             return value.ToString("R", CultureInfo.InvariantCulture);
         }
 
-        private static string ToFloatLiteral(float value)
+        private sealed class IconAsset
         {
-            return value.ToString("R", CultureInfo.InvariantCulture);
-        }
+            public IconAsset(string symbolName, FileInfo svgFile, SvgDefinition? definition, bool isColor)
+            {
+                SymbolName = symbolName;
+                SvgFile = svgFile;
+                Definition = definition;
+                IsColor = isColor;
+            }
 
-        private static string ToPointLiteral(float x, float y)
-        {
-            return $"{{local:PointFMarkupExt X = {ToFloatLiteral(x)},Y = {ToFloatLiteral(y)}}}";
+            public string SymbolName { get; }
+
+            public FileInfo SvgFile { get; }
+
+            public SvgDefinition? Definition { get; }
+
+            public bool IsColor { get; }
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
@@ -16,5 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentUISystem.Icons.Abstractions\FluentUISystem.Icons.Abstractions.csproj" />
     <ProjectReference Include="..\FluentUISystem.Icons.Shared\FluentUISystem.Icons.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+		<Content Include="Generated\ColorSvg\*.svg" />
   </ItemGroup>
 </Project>

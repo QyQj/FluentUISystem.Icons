@@ -6,6 +6,6 @@ namespace FluentUISystem.Icons.Abstractions.Models
 
         public double FillOpacity { get; set; } = 1d;
 
-        public PathFillDefinition PathFill { get; set; }
+        public string Fill { get; set; } = "Black";
     }
 }
