@@ -43,57 +43,19 @@ internal sealed class SvgParser
             result.Paths.Add(ParsePath(pathElement));
         }
 
-        if (result.Paths.Count > 1)
-        {
-        }
-
         return result;
     }
 
-    private static PathDefinition ParsePath(XElement pathElement)
+    private static string ParsePath(XElement pathElement)
     {
-        var fillValue = GetAttribute(pathElement, "fill");
-
-        return new PathDefinition
-        {
-            Data = GetAttribute(pathElement, "d"),
-            FillOpacity = ParseDouble(GetAttribute(pathElement, "fill-opacity")) ?? 1d,
-            Fill = fillValue
-        };
+        return GetAttribute(pathElement, "d");
     }
 
     private static string GetAttribute(XElement element, string name)
     {
         return element
             .Attributes()
-            .FirstOrDefault(attribute => string.Equals(attribute.Name.LocalName, name, StringComparison.OrdinalIgnoreCase))?.Value;
-    }
-
-    private static double? ParseDouble(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        var normalized = value.Trim();
-        if (normalized.EndsWith("%", StringComparison.Ordinal))
-        {
-            normalized = normalized.Substring(0, normalized.Length - 1);
-            if (double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var percentage))
-            {
-                return percentage / 100d;
-            }
-
-            return null;
-        }
-
-        if (double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
-        {
-            return result;
-        }
-
-        return null;
+            .FirstOrDefault(attribute => string.Equals(attribute.Name.LocalName, name, StringComparison.OrdinalIgnoreCase))!.Value;
     }
 
     private static double ParseLength(string value)

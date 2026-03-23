@@ -8,5 +8,5 @@ internal sealed class SvgDefinition
 
     public double Height { get; set; }
 
-    public List<PathDefinition> Paths { get; set; } = new List<PathDefinition>();
+    public List<string> Paths { get; set; } = new List<string>();
 }

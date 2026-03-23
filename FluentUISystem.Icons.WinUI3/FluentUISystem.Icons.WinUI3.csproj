@@ -16,6 +16,9 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FluentUISystemIcon.g.json" LogicalName="FluentUISystem.Icons.WinUI3.FluentUISystemIcon.g.json" />
-  </ItemGroup>
+    <EmbeddedResource Include="FluentSystemIcons-Filled.json"/>
+		<EmbeddedResource Include="FluentSystemIcons-Filled.ttf"/>
+		<EmbeddedResource Include="FluentSystemIcons-Regular.json"/>
+		<EmbeddedResource Include="FluentSystemIcons-Regular.ttf"/>
+	</ItemGroup>
 </Project>

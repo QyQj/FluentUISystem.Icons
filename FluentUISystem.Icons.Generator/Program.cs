@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
@@ -7,9 +8,10 @@ namespace FluentUISystem.Icons.Generator;
 internal static class Program
 {
     private const string SymbolFileName = "FluentUISystemIconSymbol.g.cs";
-    private const string JsonFileName = "FluentUISystemIcon.g.json";
-    private const string ColorSvgDirectoryName = "ColorSvg";
+    private const string JsonFileName = "FluentUISystemIconData.PathSvg.json";
+    private const string ColorIconArchiveFileName = "FluentUISystemIconData.ColorSvg.zip";
     private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = false
@@ -40,37 +42,44 @@ internal static class Program
             "..",
             "..",
             "FluentUISystem.Icons.WinUI3")));
-        var colorSvgDirectory = new DirectoryInfo(Path.Combine(outputDirectory.FullName, "Assets", ColorSvgDirectoryName));
-
-        Directory.CreateDirectory(colorSvgDirectory.FullName);
-
         File.WriteAllText(
             Path.Combine(outputDirectory.FullName, SymbolFileName),
             BuildSymbolCode(iconAssets.Select(asset => asset.SymbolName).ToList()),
             new UTF8Encoding(false));
 
-        var xamlDefinitions = iconAssets
+        var svgDefinitions = iconAssets
             .Where(asset => asset is { IsColor: false, Definition: not null })
             .Select(asset => asset.Definition!)
             .ToList();
 
         File.WriteAllText(
             Path.Combine(outputDirectory.FullName, JsonFileName),
-            JsonSerializer.Serialize(xamlDefinitions, JsonOptions),
+            JsonSerializer.Serialize(svgDefinitions, JsonOptions),
             new UTF8Encoding(false));
 
-        foreach (var file in colorSvgDirectory.GetFiles())
+        var colorIcons = iconAssets.Where(asset => asset.IsColor).ToList();
+        BuildColorIconArchive(Path.Combine(outputDirectory.FullName, ColorIconArchiveFileName), colorIcons);
+    }
+
+    private static void BuildColorIconArchive(string archivePath, IReadOnlyList<IconAsset> colorIcons)
+    {
+        if (File.Exists(archivePath))
         {
-            file.Delete();
+            File.Delete(archivePath);
         }
 
-        var count = 0;
-        var colorIcons = iconAssets.Where(asset => asset.IsColor).ToList();
-        foreach (var colorAsset in colorIcons)
+        using var archiveStream = File.Create(archivePath);
+        using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create);
+
+        for (var i = 0; i < colorIcons.Count; i++)
         {
-            var dest = Path.Combine(colorSvgDirectory.FullName, colorAsset.SymbolName + ".svg");
-            Console.WriteLine($"{++count}/{colorIcons.Count} Copying {colorAsset.SvgFile.Name} to {dest})");
-            File.Copy(colorAsset.SvgFile.FullName, dest, true);
+            var colorAsset = colorIcons[i];
+            var entry = archive.CreateEntry(colorAsset.SymbolName + ".svg", CompressionLevel.NoCompression);
+            Console.WriteLine($"{i + 1}/{colorIcons.Count} Packing {colorAsset.SvgFile.Name} to {entry.FullName}");
+
+            using var entryStream = entry.Open();
+            using var sourceStream = colorAsset.SvgFile.OpenRead();
+            sourceStream.CopyTo(entryStream);
         }
     }
 

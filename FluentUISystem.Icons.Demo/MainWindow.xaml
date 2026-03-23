@@ -20,7 +20,8 @@
             VerticalAlignment="Center"
             BorderBrush="Red"
             BorderThickness="4">
-            <winUi3:FluentUISystemIcon Symbol="AccessibilityCheckmark48Regular" />
+            <winUi3:FluentUISystemIcon Symbol="AddStarburst48Color" />
+            <winUi3:FluentUISystemIcon Symbol="Add48Regular" />
         </StackPanel>
     </Grid>
 </Window>
