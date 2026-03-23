@@ -361,4 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/FluentUISystem.Icons.WinUI3/Generated/*.xaml
+
+.serena
+/FluentUISystem.Icons.WinUI3/FluentUISystemIcon.g.xaml

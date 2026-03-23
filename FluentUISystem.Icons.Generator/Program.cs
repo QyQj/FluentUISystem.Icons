@@ -1,15 +1,19 @@
 using System.Globalization;
-using System.Security;
 using System.Text;
+using System.Text.Json;
 
 namespace FluentUISystem.Icons.Generator;
 
 internal static class Program
 {
     private const string SymbolFileName = "FluentUISystemIconSymbol.g.cs";
-    private const string XamlFilePrefix = "FluentUISystemIcon.g";
+    private const string JsonFileName = "FluentUISystemIcon.g.json";
     private const string ColorSvgDirectoryName = "ColorSvg";
     private static readonly TextInfo TextInfo = CultureInfo.InvariantCulture.TextInfo;
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = false
+    };
 
     private static void Main(string[] args)
     {
@@ -51,8 +55,8 @@ internal static class Program
             .ToList();
 
         File.WriteAllText(
-            Path.Combine(outputDirectory.FullName, $"{XamlFilePrefix}.xaml"),
-            BuildDictionaryXaml(xamlDefinitions),
+            Path.Combine(outputDirectory.FullName, JsonFileName),
+            JsonSerializer.Serialize(xamlDefinitions, JsonOptions),
             new UTF8Encoding(false));
 
         foreach (var file in colorSvgDirectory.GetFiles())
@@ -179,86 +183,6 @@ internal static class Program
 
         builder.AppendLine("}");
         return builder.ToString();
-    }
-
-    private static string BuildDictionaryXaml(IList<SvgDefinition> svgs)
-    {
-        var builder = new StringBuilder();
-
-        builder.AppendLine("<ResourceDictionary");
-        builder.AppendLine("    xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"");
-        builder.AppendLine("    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"");
-        builder.AppendLine("    xmlns:def=\"using:FluentUISystem.Icons.WinUI3.Models\"");
-        builder.AppendLine("    xmlns:local=\"using:FluentUISystem.Icons.WinUI3\">");
-
-        foreach (var icon in svgs.OrderBy(item => item.Id, StringComparer.Ordinal))
-        {
-            AppendSvgDefinition(builder, icon, 1);
-        }
-
-        builder.AppendLine("</ResourceDictionary>");
-        return builder.ToString();
-    }
-
-    private static void AppendSvgDefinition(StringBuilder builder, SvgDefinition definition, int indentLevel)
-    {
-        AppendIndent(builder, indentLevel);
-        builder.Append("<def:SvgDefinition x:Key=\"");
-        builder.Append(ToXmlAttribute(definition.Id));
-
-        builder.Append("\" Width=\"");
-        builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Width)));
-        builder.Append('"');
-
-        builder.Append(" Height=\"");
-        builder.Append(ToXmlAttribute(ToDoubleLiteral(definition.Height)));
-        builder.Append('"');
-
-        builder.AppendLine(">");
-        AppendIndent(builder, indentLevel + 1);
-        builder.AppendLine("<def:SvgDefinition.Paths>");
-
-        foreach (var path in definition.Paths)
-        {
-            AppendPathDefinition(builder, path, indentLevel + 2);
-        }
-
-        AppendIndent(builder, indentLevel + 1);
-        builder.AppendLine("</def:SvgDefinition.Paths>");
-        AppendIndent(builder, indentLevel);
-        builder.AppendLine("</def:SvgDefinition>");
-    }
-
-    private static void AppendPathDefinition(StringBuilder builder, PathDefinition path, int indentLevel)
-    {
-        AppendIndent(builder, indentLevel);
-        builder.Append("<def:PathDefinition Data=\"");
-        builder.Append(ToXmlAttribute(path.Data));
-        builder.Append("\" Fill=\"");
-        builder.Append(ToXmlAttribute(path.Fill));
-        builder.Append("\" FillOpacity=\"");
-        builder.Append(ToXmlAttribute(ToDoubleLiteral(path.FillOpacity)));
-        builder.AppendLine("\"/>");
-    }
-
-    private static void AppendIndent(StringBuilder builder, int indentLevel)
-    {
-        builder.Append(' ', indentLevel * 4);
-    }
-
-    private static string ToXmlAttribute(string? value)
-    {
-        return ToXmlText(value ?? string.Empty);
-    }
-
-    private static string ToXmlText(string value)
-    {
-        return SecurityElement.Escape(value) ?? string.Empty;
-    }
-
-    private static string ToDoubleLiteral(double value)
-    {
-        return value.ToString("R", CultureInfo.InvariantCulture);
     }
 
     private sealed class IconAsset

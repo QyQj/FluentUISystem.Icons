@@ -1,5 +1,4 @@
 using System;
-using FluentUISystem.Icons.WinUI3.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
@@ -22,13 +21,12 @@ public partial class FluentUISystemIconSource : MarkupExtension
         {
             source = new ImageIconSource()
             {
-                ImageSource = new SvgImageSource(new Uri($"ms-appx:///FluentUISystem.Icons.WinUI3/Generated/ColorSvg/{Symbol}.svg"))
+                ImageSource = new SvgImageSource(new Uri($"ms-appx:///FluentUISystem.Icons.WinUI3/Assets/ColorSvg/{Symbol}.svg"))
             };
         }
         else
         {
-            var svg = Application.Current.Resources[Symbol.ToString()] as SvgDefinition;
-            ArgumentNullException.ThrowIfNull(svg);
+            var svg = FluentUISystemIconData.Get(Symbol.ToString());
             var group = new GeometryGroup();
             foreach (var pathDefinition in svg.Paths)
             {

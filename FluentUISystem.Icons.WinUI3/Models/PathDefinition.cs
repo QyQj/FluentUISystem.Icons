@@ -1,10 +1,10 @@
 namespace FluentUISystem.Icons.WinUI3.Models;
 
-internal class PathDefinition
+internal sealed class PathDefinition
 {
-    internal string Data { get; set; } = string.Empty;
+    public string Data { get; set; } = string.Empty;
 
-    internal double FillOpacity { get; set; } = 1d;
+    public double FillOpacity { get; set; } = 1d;
 
-    internal string Fill { get; set; } = "Black";
+    public string Fill { get; set; } = "Black";
 }

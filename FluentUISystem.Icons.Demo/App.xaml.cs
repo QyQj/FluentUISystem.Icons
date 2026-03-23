@@ -24,7 +24,7 @@ namespace FluentUISystem.Icons.Demo
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    internal partial class App : Application
+    public partial class App : Application
     {
         private Window? _window;
 
@@ -32,7 +32,7 @@ namespace FluentUISystem.Icons.Demo
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
-        internal App()
+        public App()
         {
             InitializeComponent();
         }

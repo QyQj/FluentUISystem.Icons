@@ -7,12 +7,15 @@
     <Nullable>enable</Nullable>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>AnyCPU;x64</Platforms>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>QyQj</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FluentUISystemIcon.g.json" LogicalName="FluentUISystem.Icons.WinUI3.FluentUISystemIcon.g.json" />
   </ItemGroup>
 </Project>

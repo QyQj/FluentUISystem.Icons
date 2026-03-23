@@ -15,7 +15,11 @@ internal static class Utils
             "xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'>" +
             "<Path.Data>" + pathMarkup + "</Path.Data></Path>";
 
-        Path path = XamlReader.Load(xaml) as Path;
+        var path = XamlReader.Load(xaml) as Path;
+        if (path is null)
+        {
+            throw new InvalidOperationException("Failed to create Path from XAML markup.");
+        }
 
         // Detach the PathGeometry from the Path
         Geometry geometry = path.Data;

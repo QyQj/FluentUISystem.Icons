@@ -21,9 +21,9 @@ namespace FluentUISystem.Icons.Demo
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    internal sealed partial class MainWindow : Window
+    public sealed partial class MainWindow : Window
     {
-        internal MainWindow()
+        public MainWindow()
         {
             InitializeComponent();
         }
