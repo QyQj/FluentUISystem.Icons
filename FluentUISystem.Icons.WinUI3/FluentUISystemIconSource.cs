@@ -1,6 +1,5 @@
 using System;
-using FluentUISystem.Icons.Abstractions.Models;
-using FluentUISystem.Icons.Shared;
+using FluentUISystem.Icons.WinUI3.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
@@ -14,7 +13,7 @@ public partial class FluentUISystemIconSource : MarkupExtension
 {
     public Color Fill { get; set; } = Color.FromArgb(255, 33, 33, 33);
 
-    public FluentSystemIconSymbol Symbol { get; set; }
+    public FluentUISystemIconSymbol Symbol { get; set; }
 
     protected override object ProvideValue()
     {

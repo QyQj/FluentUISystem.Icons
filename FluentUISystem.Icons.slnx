@@ -3,17 +3,11 @@
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="FluentUISystem.Icons.Abstractions/FluentUISystem.Icons.Abstractions.csproj" Id="b93e21f9-26ed-41bc-9c28-862bbb38af2b">
-    <Platform Solution="*|x64" Project="x64" />
-  </Project>
   <Project Path="FluentUISystem.Icons.Demo/FluentUISystem.Icons.Demo.csproj" Id="e5a092a8-5934-4da4-a63a-1ab8fc6c9b6c">
     <Platform Project="x64" />
     <Deploy />
   </Project>
   <Project Path="FluentUISystem.Icons.Generator/FluentUISystem.Icons.Generator.csproj">
-    <Platform Solution="*|x64" Project="x64" />
-  </Project>
-  <Project Path="FluentUISystem.Icons.Shared/FluentUISystem.Icons.Shared.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
   <Project Path="FluentUISystem.Icons.WinUI3/FluentUISystem.Icons.WinUI3.csproj">

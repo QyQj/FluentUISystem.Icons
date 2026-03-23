@@ -7,17 +7,12 @@
     <Nullable>enable</Nullable>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>QyQj</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FluentUISystem.Icons.Abstractions\FluentUISystem.Icons.Abstractions.csproj" />
-    <ProjectReference Include="..\FluentUISystem.Icons.Shared\FluentUISystem.Icons.Shared.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-		<Content Include="Generated\ColorSvg\*.svg" />
   </ItemGroup>
 </Project>

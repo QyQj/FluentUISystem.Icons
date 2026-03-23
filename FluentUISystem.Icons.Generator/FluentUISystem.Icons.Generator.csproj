@@ -5,15 +5,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)' == 'x64'">
     <DefineConstants>X64</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FluentUISystem.Icons.Abstractions\FluentUISystem.Icons.Abstractions.csproj" />
-  </ItemGroup>
 
 </Project>
